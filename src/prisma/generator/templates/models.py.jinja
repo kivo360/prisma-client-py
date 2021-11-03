@@ -4,7 +4,6 @@ import os
 from pydantic import BaseConfig, BaseModel, Field
 
 from . import types, enums, errors, fields
-from ._types import BaseModelT
 from .generator import partial_models_ctx, PartialModelField
 
 
@@ -13,11 +12,19 @@ class Config(BaseConfig):
     allow_population_by_field_name: bool = True
 
 
+# TODO: potential naming conflicts
+class PrismaModel(BaseModel):
+    # TODO: ensure subclasses must implement
+    __prisma_name__: str = ''
+
+
+# TODO: move this T out of here or consolidate
+PrismaModelT = TypeVar('PrismaModelT', bound='models.PrismaModel')
 _created_partial_types: Set[str] = set()
 
 
 {% for model in dmmf.datamodel.models %}
-class {{ model.name }}(BaseModel):
+class {{ model.name }}(PrismaModel):
     {% for field in model.all_fields %}
     {{ field.name }}:
             {%- if field.is_required and not field.relation_name -%}
@@ -28,12 +35,13 @@ class {{ model.name }}(BaseModel):
     {% endfor %}
 
     Config = Config
+    __prisma_name__: str = '{{ model.name }}'
 
     @classmethod
-    def prisma(cls: Type[BaseModelT]) -> 'actions.{{ model.name }}Actions[BaseModelT]':
+    def prisma(cls: Type[PrismaModelT]) -> 'actions.{{ model.name }}Actions[PrismaModelT]':
         from .client import get_client
 
-        return actions.{{ model.name }}Actions[BaseModelT](get_client(), cls)
+        return actions.{{ model.name }}Actions[PrismaModelT](get_client(), cls)
 
     @staticmethod
     def create_partial(

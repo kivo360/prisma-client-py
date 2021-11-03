@@ -1,10 +1,11 @@
 # fmt: off
 # I prefer this way of formatting
 import datetime
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 import pytest
 from syrupy.assertion import SnapshotAssertion
+from prisma import models
 from prisma.utils import _NoneType
 from prisma.builder import QueryBuilder, serializer
 from prisma.errors import UnknownRelationalFieldError, UnknownModelError
@@ -40,7 +41,7 @@ def test_basic_building() -> None:
     assert_query_equals(QueryBuilder(
         operation='query',
         method='findUnique',
-        model='User',
+        model=models.User,
         arguments={'where': {'id': '1'}}
     ), '''
     query {
@@ -78,7 +79,7 @@ def test_invalid_include() -> None:
         QueryBuilder(
             operation='query',
             method='findUnique',
-            model='User',
+            model=models.User,
             arguments={
                 'include': {
                     'hello': True,
@@ -108,7 +109,7 @@ def test_include_with_arguments() -> None:
     assert_query_equals(QueryBuilder(
         operation='query',
         method='findUnique',
-        model='User',
+        model=models.User,
         arguments={
             'where': {'id': 1},
             'include': {'posts': {'where': {'id': 1}}}
@@ -169,7 +170,7 @@ def test_datetime_serialization_tz_aware(snapshot: SnapshotAssertion) -> None:
     query = QueryBuilder(
         operation='query',
         method='findUnique',
-        model='Post',
+        model=models.Post,
         arguments={
             'where': {
                 'created_at': datetime.datetime(1985, 10, 26, 1, 1, 1, tzinfo=datetime.timezone.max)
@@ -184,7 +185,7 @@ def test_datetime_serialization_tz_unaware(snapshot: SnapshotAssertion) -> None:
     query = QueryBuilder(
         operation='query',
         method='findUnique',
-        model='Post',
+        model=models.Post,
         arguments={
             'where': {
                 'created_at': datetime.datetime(1985, 10, 26, 1, 1, 1)
@@ -199,7 +200,7 @@ def test_unicode(snapshot: SnapshotAssertion) -> None:
     query = QueryBuilder(
         operation='query',
         method='findUnique',
-        model='User',
+        model=models.User,
         arguments={
             'where': {
                 'name': '❤',
@@ -263,11 +264,35 @@ def test_custom_serialization(snapshot: SnapshotAssertion) -> None:
     query = QueryBuilder(
         operation='query',
         method='findUnique',
-        model='Post',
+        model=models.Post,
         arguments={
             'where': {
                 'title': Foo(1),
             }
         }
+    ).build_query()
+    assert query == snapshot
+
+
+def test_select(snapshot: SnapshotAssertion) -> None:
+    """TODO"""
+    class OtherModel(models.PrismaModel):
+        __prisma_name__ = 'User'
+        name: str
+
+    class CustomModel(models.PrismaModel):
+        __prisma_name__ = 'Post'
+        published: bool
+        other: Optional[OtherModel]
+
+    query = QueryBuilder(
+        operation='query',
+        method='findFirst',
+        model=CustomModel,
+        arguments={
+            'where': {
+                'title': 'Foo',
+            },
+        },
     ).build_query()
     assert query == snapshot
