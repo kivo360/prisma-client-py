@@ -3,7 +3,6 @@ import inspect
 import pytest
 import prisma
 from prisma import Prisma, register, get_client
-from typing import cast
 
 
 def pytest_sessionstart(session: pytest.Session) -> None:

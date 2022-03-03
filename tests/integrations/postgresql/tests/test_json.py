@@ -114,7 +114,11 @@ async def test_base_filtering(client: Prisma) -> None:
     )
     assert found is None
 
-    model = await client.types.create(data={'json_obj': Json.keys(country='Scotland')})
+    model = await client.types.create(
+        data={
+            'json_obj': Json.keys(country='Scotland'),
+        },
+    )
     assert model.json_obj == {'country': 'Scotland'}
 
     found = await client.types.find_first(
@@ -159,4 +163,4 @@ async def test_unserializable_type(client: Prisma) -> None:
             },
         )
 
-    assert exc.match(r'Type <class \'prisma.Prisma\'> not serializable')
+    assert exc.match(r'Type <class \'prisma.client.Prisma\'> not serializable')

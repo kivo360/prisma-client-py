@@ -35,7 +35,7 @@ In order to query using model based access you must first create and register a 
 ```py
 from prisma import Prisma
 
-conn = Prisma(auto_register=True)
+db = Prisma(auto_register=True)
 ```
 
 or like this:
@@ -51,19 +51,19 @@ You can only do this once in the same python process.
 You can also pass a function that returns a client instance.
 
 ```py
-import prisma
+from prisma import Prisma, register
 
-def get_client() -> prisma.Client:
-    return prisma.Prisma()
+def get_client() -> Prisma:
+    return Prisma()
 
-prisma.register(get_client)
+register(get_client)
 ```
 
 ## Usage
 
 All query operations are the *exact* same as with [client-based access](./operations.md).
 
-Converting client-based access operations to model-based access operations simply requires changing calls like: `conn.user` to `User.prisma()`.
+Converting client-based access operations to model-based access operations simply requires changing calls like: `db.user` to `User.prisma()`.
 
 ### Examples
 

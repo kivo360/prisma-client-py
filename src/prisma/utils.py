@@ -37,7 +37,9 @@ def setup_logging() -> None:
         logging.getLogger('prisma').setLevel(logging.DEBUG)
 
 
-def maybe_async_run(func: Union[FuncType, CoroType], *args: Any, **kwargs: Any) -> Any:
+def maybe_async_run(
+    func: Union[FuncType, CoroType], *args: Any, **kwargs: Any
+) -> Any:
     if is_coroutine(func):
         return async_run(func(*args, **kwargs))
     return func(*args, **kwargs)
@@ -117,21 +119,6 @@ def assert_never(value: NoReturn) -> NoReturn:
 
     https://github.com/microsoft/pyright/issues/767
     """
-    assert False, "Unhandled type: {}".format(type(value).__name__)  # pragma: no cover
-
-
-@cache
-def fn_signature(func: FuncType) -> str:
-    """Return the signature of a function."""
-
-    base_sig = inspect.signature(func)
-    params = dict(base_sig.parameters)
-    if "self" in params:
-        params.pop("self")
-
-    base_signature = base_sig.replace(parameters=list(params.values()))
-    short_str_signature = str(base_signature)
-    short_str_signature = short_str_signature.replace("(", "", 1)
-    if len(short_str_signature) > MAX_FN_SIGNATURE:
-        short_str_signature = short_str_signature[0 : MAX_FN_SIGNATURE - 1] + '...'
-    return short_str_signature
+    assert False, 'Unhandled type: {}'.format(
+        type(value).__name__
+    )  # pragma: no cover

@@ -5,8 +5,8 @@ import httpx
 import pytest
 from unittest.mock import AsyncMock
 from pytest_mock import MockerFixture
+
 from prisma import ENGINE_TYPE, Prisma, get_client, errors
-from prisma import Prisma
 from prisma.http_abstract import DEFAULT_CONFIG
 from prisma.engine.http import HTTPEngine
 from prisma.engine.errors import AlreadyConnectedError
@@ -40,7 +40,9 @@ async def test_create_many_invalid_provider(client: Prisma) -> None:
 
 
 @pytest.mark.asyncio
-async def test_datasource_overwriting(testdir: Testdir, client: Prisma) -> None:
+async def test_datasource_overwriting(
+    testdir: Testdir, client: Prisma
+) -> None:
     """Ensure the client can connect and query to a custom datasource"""
     # we have to do this messing with the schema so that we can run db push on the new database
     schema = Path(__file__).parent / 'data' / 'schema.prisma'
@@ -98,7 +100,7 @@ async def test_connect_timeout(mocker: MockerFixture) -> None:
     """Setting the timeout on a client and a per-call basis works"""
     client = Prisma(connect_timeout=7)
     mocked = mocker.patch.object(
-        client._engine_class,  # pylint: disable=protected-access
+        client._engine_class,
         'connect',
         new=AsyncMock(),
     )
@@ -119,7 +121,9 @@ async def test_custom_http_options(monkeypatch: 'MonkeyPatch') -> None:
         # pass to real __init__ method to ensure types passed will actually work at runtime
         real__init__(*args, **kwargs)
 
-    getter = patch_method(monkeypatch, httpx.AsyncClient, '__init__', mock___init__)
+    getter = patch_method(
+        monkeypatch, httpx.AsyncClient, '__init__', mock___init__
+    )
 
     def mock_app(args: Mapping[str, object], data: object) -> object:
         ...
