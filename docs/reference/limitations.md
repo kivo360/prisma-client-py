@@ -71,8 +71,8 @@ however an error will be raised at runtime.
 ```py
 from prisma import Prisma
 
-async def main(client: Client) -> None:
-    user = await conn.user.find_first(
+async def main(db: Prisma) -> None:
+    user = await db.user.find_first(
         where={
             'profile': {
                 'is': {

@@ -4,7 +4,7 @@ __title__ = 'prisma'
 __author__ = 'RobertCraigie'
 __license__ = 'APACHE'
 __copyright__ = 'Copyright 2020-2021 RobertCraigie'
-__version__ = '0.6.0a'
+__version__ = '0.6.2a'
 
 
 from .utils import setup_logging
@@ -45,7 +45,8 @@ try:
 
         def __repr__(self) -> str:
             client_sig = utils.fn_signature(Client.__init__)
-            return f"Prisma({client_sig})"
+            return f'Prisma({client_sig})'
+
 
 except ModuleNotFoundError:
     # code has not been generated yet
